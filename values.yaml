@@ -2,28 +2,57 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+namespace: "lkloiani"
+
+labels:
+  - student: lkloiani
+
 replicaCount: 1
 
+configMap:
+  name: index-html-configmap
+  data:
+    index.html: |
+      <html>
+      <h1>Welcome</h1>
+      </br>
+      <h1>Hi! This is a configmap Index file </h1>
+      </html>
+
+
+deployment:
+  name: web-server-lkloiani
+
 image:
+  name: nginx
   repository: nginx
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+  version: "latest"
+
+containerPort: 80
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  enabled: true
+  name: lkloiani-serviceaccount  
+
+role:
+  name:  lkloiani-service-role
+  rules:
+  - apiGroups: [""] 
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""] 
+    resources: ["configmaps"]
+    verbs: ["get","list","watch","create", "delete","update","patch"] 
+
+roleBinding:
+  name: "lkloiani-service-role-binding"    
 
 podAnnotations: {}
 podLabels: {}
@@ -40,8 +69,16 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  name: lkloiani-service
   type: ClusterIP
   port: 80
+
+virtualService:
+  name: lkloiani-virtual-service
+  gateways: 
+  - istio-system/academy-ingress-gateway
+  hosts:
+  - lkloiani.academy.com  
 
 ingress:
   enabled: false
@@ -88,17 +125,15 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes:
+- name: nginx-index-file
+  configMap: *configMap.name
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+volumeMounts:
+- name: nginx-index-file
+  mountPath: "/usr/share/nginx/html/"
+  readOnly: false
 
 nodeSelector: {}
 
