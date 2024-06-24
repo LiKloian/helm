@@ -33,10 +33,6 @@ image:
 
 containerPort: 80
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
 serviceAccount:
   enabled: true
   name: lkloiani-serviceaccount  
@@ -54,6 +50,27 @@ role:
 roleBinding:
   name: lkloiani-service-role-binding  
 
+service:
+  name: lkloiani-service
+  type: ClusterIP
+  port: 80
+
+virtualService:
+  name: lkloiani-virtual-service
+  gateways: 
+  - istio-system/academy-ingress-gateway
+  hosts:
+  - lkloiani.academy.com    
+
+volume:
+  name: nginx-index-file
+  configMap: index-html-configmap
+
+volumeMount:
+  name: nginx-index-file
+  mountPath: /usr/share/nginx/html/
+  readOnly: false
+
 podAnnotations: {}
 podLabels: {}
 
@@ -67,18 +84,6 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
-service:
-  name: lkloiani-service
-  type: ClusterIP
-  port: 80
-
-virtualService:
-  name: lkloiani-virtual-service
-  gateways: 
-  - istio-system/academy-ingress-gateway
-  hosts:
-  - lkloiani.academy.com  
 
 ingress:
   enabled: false
@@ -123,17 +128,6 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
-# Additional volumes on the output Deployment definition.
-volume:
-  name: nginx-index-file
-  configMap: index-html-configmap
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMount:
-  name: nginx-index-file
-  mountPath: /usr/share/nginx/html/
-  readOnly: false
 
 nodeSelector: {}
 
