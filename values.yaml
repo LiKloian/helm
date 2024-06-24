@@ -2,10 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: "lkloiani"
+namespace: lkloiani
 
 labels:
-  - student: lkloiani
+  app: lkloiani-app
 
 replicaCount: 1
 
@@ -52,7 +52,7 @@ role:
     verbs: ["get","list","watch","create", "delete","update","patch"] 
 
 roleBinding:
-  name: "lkloiani-service-role-binding"    
+  name: lkloiani-service-role-binding  
 
 podAnnotations: {}
 podLabels: {}
@@ -125,14 +125,14 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes:
-- name: nginx-index-file
-  configMap: *configMap.name
+volume:
+  name: nginx-index-file
+  configMap: index-html-configmap
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts:
-- name: nginx-index-file
-  mountPath: "/usr/share/nginx/html/"
+volumeMount:
+  name: nginx-index-file
+  mountPath: /usr/share/nginx/html/
   readOnly: false
 
 nodeSelector: {}

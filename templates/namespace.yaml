@@ -3,6 +3,6 @@ kind: Namespace
 metadata:
   name: {{ .Values.namespace }}
   labels:
-    {{- range $key, $value := .Values.labels}}
-    {{ $key }} : {{$value}}
+    {{- range $k, $v := .Values.labels}}
+    {{ $k }}: {{$v}}
     {{- end }}
